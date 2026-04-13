@@ -1,31 +1,43 @@
-import { SetMetadata } from '@nestjs/common';
-import { REVALIDATE_METADATA } from '../metadata/metadata.constants';
-import { HttpCacheOptions, RevalidateRouteMetadata } from '../metadata/metadata.types';
+import { applyDecorators } from '@nestjs/common';
+import { EtagBy } from './etag-by.decorator';
+import { LastModifiedBy } from './last-modified-by.decorator';
+import { CacheControl } from './cache-control.decorator';
+import { Vary } from './vary.decorator';
+import { NoStore } from './no-store.decorator';
+import { HttpCacheOptions } from '../metadata/metadata.types';
 
 export function HttpCache<T = unknown>(
   options: HttpCacheOptions<T>,
 ): MethodDecorator & ClassDecorator {
-  const normalized: RevalidateRouteMetadata<T> = {};
+  const decorators: Array<ClassDecorator | MethodDecorator> = [];
 
   if (options.etag !== undefined) {
-    normalized.etag = typeof options.etag === 'function' ? { by: options.etag } : options.etag;
+    if (typeof options.etag === 'function') {
+      decorators.push(EtagBy(options.etag));
+    } else {
+      decorators.push(EtagBy(options.etag.by, options.etag.mode));
+    }
   }
 
   if (options.lastModified !== undefined) {
-    normalized.lastModified = options.lastModified;
+    decorators.push(LastModifiedBy(options.lastModified));
   }
 
   if (options.cacheControl !== undefined) {
-    normalized.cacheControl = options.cacheControl;
+    decorators.push(CacheControl(options.cacheControl));
   }
 
   if (options.vary !== undefined) {
-    normalized.vary = options.vary;
+    if (typeof options.vary === 'function') {
+      decorators.push(Vary(options.vary as never));
+    } else {
+      decorators.push(Vary(...options.vary));
+    }
   }
 
-  if (options.noStore !== undefined) {
-    normalized.noStore = options.noStore;
+  if (options.noStore) {
+    decorators.push(NoStore());
   }
 
-  return SetMetadata(REVALIDATE_METADATA, normalized);
+  return applyDecorators(...decorators);
 }
