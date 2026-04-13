@@ -1,0 +1,64 @@
+{
+  "name": "nestjs-revalidate",
+  "version": "0.1.0",
+  "description": "Declarative HTTP revalidation for NestJS with ETag, Last-Modified, Cache-Control, Vary and 304 responses.",
+  "license": "MIT",
+  "author": "Gladun Vladislav <gladun.vladislav@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gladunvv/nestjs-revalidate.git"
+  },
+  "homepage": "https://github.com/gladunvv/nestjs-revalidate",
+  "bugs": {
+    "url": "https://github.com/gladunvv/nestjs-revalidate/issues"
+  },
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "keywords": [
+    "nestjs",
+    "nest",
+    "http",
+    "cache",
+    "revalidate",
+    "revalidation",
+    "etag",
+    "last-modified",
+    "cache-control",
+    "conditional-requests",
+    "304",
+    "not-modified",
+    "fastify",
+    "express",
+    "interceptor",
+    "decorators",
+    "api",
+    "rest"
+  ],
+  "peerDependencies": {
+    "@nestjs/common": "^10.0.0 || ^11.0.0",
+    "@nestjs/core": "^10.0.0 || ^11.0.0",
+    "reflect-metadata": "^0.1.13 || ^0.2.0",
+    "rxjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/platform-fastify": "^11.0.0",
+    "@types/node": "^22.0.0",
+    "fastify": "^5.0.0",
+    "express": "^5.0.0",
+    "typescript": "^5.7.0",
+    "tsup": "^8.0.0",
+    "vitest": "^3.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  }
+}

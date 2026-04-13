@@ -1,0 +1,1 @@
+export const REVALIDATE_METADATA = Symbol('REVALIDATE_METADATA');
