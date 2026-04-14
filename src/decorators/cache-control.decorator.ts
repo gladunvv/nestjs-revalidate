@@ -6,6 +6,6 @@ export function CacheControl<T = unknown>(
   value: string | CacheControlFactory<T>,
 ): MethodDecorator & ClassDecorator {
   return SetMetadata(REVALIDATE_CACHE_CONTROL_METADATA, {
-    cacheControl: value,
+    value,
   });
 }

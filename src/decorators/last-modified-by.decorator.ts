@@ -6,6 +6,6 @@ export function LastModifiedBy<T = unknown>(
   projector: LastModifiedProjector<T>,
 ): MethodDecorator & ClassDecorator {
   return SetMetadata(REVALIDATE_LAST_MODIFIED_METADATA, {
-    lastModified: projector,
+    projector,
   });
 }
