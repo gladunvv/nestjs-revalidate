@@ -5,7 +5,5 @@ import { LastModifiedProjector } from '../metadata/metadata.types';
 export function LastModifiedBy<T = unknown>(
   projector: LastModifiedProjector<T>,
 ): MethodDecorator & ClassDecorator {
-  return SetMetadata(REVALIDATE_LAST_MODIFIED_METADATA, {
-    projector,
-  });
+  return SetMetadata(REVALIDATE_LAST_MODIFIED_METADATA, projector);
 }

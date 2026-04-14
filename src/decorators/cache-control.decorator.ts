@@ -5,7 +5,5 @@ import { CacheControlFactory } from '../metadata/metadata.types';
 export function CacheControl<T = unknown>(
   value: string | CacheControlFactory<T>,
 ): MethodDecorator & ClassDecorator {
-  return SetMetadata(REVALIDATE_CACHE_CONTROL_METADATA, {
-    value,
-  });
+  return SetMetadata(REVALIDATE_CACHE_CONTROL_METADATA, value);
 }
