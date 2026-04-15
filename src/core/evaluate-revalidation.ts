@@ -33,14 +33,18 @@ export function evaluateRevalidation<T>({
       headers.cacheControl = cacheControl;
     }
   }
+//TODO: Implement VaryFactory (vary with factory)
+  // if (metadata.vary) {
+  //   const varyValue =
+  //     typeof metadata.vary === 'function' ? metadata.vary(value, context) : metadata.vary;
+
+  //   if (varyValue?.length) {
+  //     headers.vary = varyValue.join(', ');
+  //   }
+  // }
 
   if (metadata.vary) {
-    const varyValue =
-      typeof metadata.vary === 'function' ? metadata.vary(value, context) : metadata.vary;
-
-    if (varyValue?.length) {
-      headers.vary = varyValue.join(', ');
-    }
+    headers.vary = metadata.vary.join(', ');
   }
 
   let currentEtag: string | undefined;

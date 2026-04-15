@@ -28,11 +28,7 @@ export function HttpCache<T = unknown>(
   }
 
   if (options.vary !== undefined) {
-    if (typeof options.vary === 'function') {
-      decorators.push(Vary(options.vary as never));
-    } else {
-      decorators.push(Vary(...options.vary));
-    }
+    decorators.push(Vary(...options.vary));
   }
 
   if (options.noStore) {

@@ -26,10 +26,11 @@ export type CacheControlFactory<T = unknown> = (
   ctx: HttpCacheExecutionContext,
 ) => string | undefined;
 
-export type VaryFactory<T = unknown> = (
-  value: T,
-  ctx: HttpCacheExecutionContext,
-) => string[] | undefined;
+// TODO: Implement VaryFactory
+// export type VaryFactory<T = unknown> = (
+//   value: T,
+//   ctx: HttpCacheExecutionContext,
+// ) => string[] | undefined;
 
 export interface HttpCacheOptions<T = unknown> {
   etag?:
@@ -40,7 +41,7 @@ export interface HttpCacheOptions<T = unknown> {
       };
   lastModified?: LastModifiedProjector<T>;
   cacheControl?: string | CacheControlFactory<T>;
-  vary?: string[] | VaryFactory<T>;
+  vary?: string[];
   noStore?: boolean;
 }
 
@@ -51,6 +52,6 @@ export interface RevalidateRouteMetadata<T = unknown> {
   };
   lastModified?: LastModifiedProjector<T>;
   cacheControl?: string | CacheControlFactory<T>;
-  vary?: string[] | VaryFactory<T>;
+  vary?: string[];
   noStore?: boolean;
 }
