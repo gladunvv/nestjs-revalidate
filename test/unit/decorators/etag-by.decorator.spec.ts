@@ -1,6 +1,7 @@
 import 'reflect-metadata';
-import { REVALIDATE_ETAG_METADATA } from '../src/metadata/metadata.constants';
-import { EtagBy } from '../src/decorators/etag-by.decorator';
+import { describe, it, expect } from 'vitest';
+import { REVALIDATE_ETAG_METADATA } from '../../../src/metadata/metadata.constants';
+import { EtagBy } from '../../../src/decorators/etag-by.decorator';
 
 describe('EtagBy', () => {
   it('stores etag metadata on method', () => {

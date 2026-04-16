@@ -6,8 +6,8 @@ import {
   REVALIDATE_CACHE_CONTROL_METADATA,
   REVALIDATE_VARY_METADATA,
   REVALIDATE_NO_STORE_METADATA,
-} from '../src/metadata/metadata.constants';
-import { HttpCache } from '../src/decorators/http-cache.decorator';
+} from '../../../src/metadata/metadata.constants';
+import { HttpCache } from '../../../src/decorators/http-cache.decorator';
 
 describe('HttpCache', () => {
   it('stores all metadata pieces', () => {
