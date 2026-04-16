@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, Inject, Injectable, NestInterceptor } from '@nestjs/common';
 import { Reflector, HttpAdapterHost } from '@nestjs/core';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of, EMPTY } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 import { getMergedRevalidateMetadata } from '../metadata/metadata.utils';
 import { evaluateRevalidation } from '../core/evaluate-revalidation';
 import { createHttpPlatformAdapter } from '../platform/http-platform-adapter.factory';
@@ -11,7 +11,9 @@ import { RevalidateModuleOptions } from '../module/revalidate.interfaces';
 @Injectable()
 export class RevalidateInterceptor implements NestInterceptor {
   constructor(
+    @Inject(Reflector)
     private readonly reflector: Reflector,
+    @Inject(HttpAdapterHost)
     private readonly adapterHost: HttpAdapterHost,
     @Inject(REVALIDATE_MODULE_OPTIONS)
     private readonly options: RevalidateModuleOptions,
@@ -35,7 +37,7 @@ export class RevalidateInterceptor implements NestInterceptor {
     }
 
     return next.handle().pipe(
-      map((value) => {
+      mergeMap((value) => {
         const requestContext = {
           method,
           url: adapter.getRequestUrl(context),
@@ -67,10 +69,10 @@ export class RevalidateInterceptor implements NestInterceptor {
 
         if (decision.notModified) {
           adapter.replyNotModified(context);
-          return undefined;
+          return of(null);
         }
 
-        return value;
+        return of(value);
       }),
     );
   }

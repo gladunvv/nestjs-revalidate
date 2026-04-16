@@ -24,6 +24,6 @@ export class FastifyPlatformAdapter implements HttpPlatformAdapter {
 
   replyNotModified(context: ExecutionContext): void {
     const reply = context.switchToHttp().getResponse();
-    reply.code(304).send();
+    reply.code(304);
   }
 }

@@ -24,6 +24,6 @@ export class ExpressPlatformAdapter implements HttpPlatformAdapter {
 
   replyNotModified(context: ExecutionContext): void {
     const res = context.switchToHttp().getResponse();
-    res.status(304).send();
+    res.status(304);
   }
 }
