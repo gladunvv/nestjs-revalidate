@@ -5,8 +5,8 @@ import { Controller, Get, Module, Param } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 
-import { RevalidateModule } from '../../src/module/revalidate.module';
-import { LastModifiedBy } from '../../src/decorators/last-modified-by.decorator';
+import { RevalidateModule } from '../../../src/module/revalidate.module';
+import { LastModifiedBy } from '../../../src/decorators/last-modified-by.decorator';
 
 @Controller('posts')
 class PostsController {

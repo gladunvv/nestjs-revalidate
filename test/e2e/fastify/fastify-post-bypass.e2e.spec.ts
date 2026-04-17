@@ -3,10 +3,10 @@ import { beforeAll, afterAll, describe, expect, it } from 'vitest';
 import request from 'supertest';
 import { Body, Controller, Module, Post } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 
-import { RevalidateModule } from '../../src/module/revalidate.module';
-import { EtagBy } from '../../src/decorators/etag-by.decorator';
+import { RevalidateModule } from '../../../src/module/revalidate.module';
+import { EtagBy } from '../../../src/decorators/etag-by.decorator';
 
 @Controller('users')
 class UsersController {
@@ -30,16 +30,18 @@ class UsersController {
 })
 class TestAppModule {}
 
-describe('Express POST bypass e2e', () => {
-  let app: INestApplication;
+describe('Fastify POST bypass e2e', () => {
+  let app: NestFastifyApplication;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [TestAppModule],
     }).compile();
 
-    app = moduleRef.createNestApplication();
+    app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
+
     await app.init();
+    await app.getHttpAdapter().getInstance().ready();
   });
 
   afterAll(async () => {
@@ -59,5 +61,7 @@ describe('Express POST bypass e2e', () => {
       id: '1',
       name: 'Alex',
     });
+
+    expect(response.header.etag).toBeUndefined();
   });
 });

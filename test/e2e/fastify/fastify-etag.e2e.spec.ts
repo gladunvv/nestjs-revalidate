@@ -1,29 +1,23 @@
 import 'reflect-metadata';
-import { beforeAll, afterAll, describe, expect, it } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import { Controller, Get, Module, Param } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-
-import { RevalidateModule } from '../../src/module/revalidate.module';
-import { EtagBy } from '../../src/decorators/etag-by.decorator';
+import { RevalidateModule } from '../../../src/module/revalidate.module';
+import { EtagBy } from '../../../src/decorators/etag-by.decorator';
 
 @Controller('users')
 class UsersController {
-  private version = 1;
-
   @Get(':id')
   @EtagBy((value: { version: number }) => value.version)
   findOne(@Param('id') id: string) {
-    const result = {
+    return {
       id,
-      version: this.version,
+      version: 7,
       name: 'Alex',
     };
-
-    this.version += 1;
-
-    return result;
   }
 }
 
@@ -37,7 +31,7 @@ class UsersController {
 })
 class TestAppModule {}
 
-describe('Fastify changed ETag e2e', () => {
+describe('Fastify ETag e2e', () => {
   let app: NestFastifyApplication;
 
   beforeAll(async () => {
@@ -52,28 +46,23 @@ describe('Fastify changed ETag e2e', () => {
   });
 
   afterAll(async () => {
-    if (app) {
-      await app.close();
-    }
+    await app.close();
   });
 
-  it('returns 200 when resource version changed and If-None-Match contains old ETag', async () => {
-    const first = await request(app.getHttpServer()).get('/users/1').expect(200);
+  it('returns 200 with ETag and then 304 when If-None-Match matches', async () => {
+    const server = app.getHttpServer();
+
+    const first = await request(server).get('/users/1').expect(200);
 
     const etag = first.header.etag;
     expect(etag).toBeDefined();
 
     if (!etag) {
-      throw new Error('Expected ETag header to be present');
+      throw new Error('ETag header is missing');
     }
 
-    const second = await request(app.getHttpServer())
-      .get('/users/1')
-      .set('If-None-Match', etag)
-      .expect(200);
+    const second = await request(server).get('/users/1').set('If-None-Match', etag).expect(304);
 
-    expect(second.header.etag).toBeDefined();
-    expect(second.header.etag).not.toBe(etag);
-    expect(second.body.version).toBe(2);
+    expect(second.text).toBe('');
   });
 });
