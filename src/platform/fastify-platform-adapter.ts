@@ -22,7 +22,7 @@ export class FastifyPlatformAdapter implements HttpPlatformAdapter {
     reply.header(name, value);
   }
 
-  replyNotModified(context: ExecutionContext): void {
+  setStatusNotModified(context: ExecutionContext): void {
     const reply = context.switchToHttp().getResponse();
     reply.code(304);
   }

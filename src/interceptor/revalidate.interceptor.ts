@@ -68,7 +68,7 @@ export class RevalidateInterceptor implements NestInterceptor {
         }
 
         if (decision.notModified) {
-          adapter.replyNotModified(context);
+          adapter.setStatusNotModified(context);
           return of(null);
         }
 

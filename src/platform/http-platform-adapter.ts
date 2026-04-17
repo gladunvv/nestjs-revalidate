@@ -5,5 +5,5 @@ export interface HttpPlatformAdapter {
   getRequestUrl(context: ExecutionContext): string | undefined;
   getRequestHeaders(context: ExecutionContext): Record<string, string | string[] | undefined>;
   setHeader(context: ExecutionContext, name: string, value: string): void;
-  replyNotModified(context: ExecutionContext): void;
+  setStatusNotModified(context: ExecutionContext): void;
 }

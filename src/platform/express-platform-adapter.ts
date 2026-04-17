@@ -22,7 +22,7 @@ export class ExpressPlatformAdapter implements HttpPlatformAdapter {
     res.setHeader(name, value);
   }
 
-  replyNotModified(context: ExecutionContext): void {
+  setStatusNotModified(context: ExecutionContext): void {
     const res = context.switchToHttp().getResponse();
     res.status(304);
   }
