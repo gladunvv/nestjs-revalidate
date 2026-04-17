@@ -191,4 +191,43 @@ describe('evaluateRevalidation', () => {
 
     expect(second.notModified).toBe(false);
   });
+
+  it('uses weak etag mode by default', () => {
+    const decision = evaluateRevalidation({
+      value: { version: 1 },
+      metadata: {
+        etag: {
+          by: (value: { version: number }) => value.version,
+        },
+      },
+      context: {
+        method: 'GET',
+        url: '/users/1',
+        headers: {},
+      },
+      defaultEtagMode: 'weak',
+    });
+
+    expect(decision.headers.etag).toMatch(/^W\//);
+  });
+
+  it('uses strong etag mode when configured', () => {
+    const decision = evaluateRevalidation({
+      value: { version: 1 },
+      metadata: {
+        etag: {
+          by: (value: { version: number }) => value.version,
+        },
+      },
+      context: {
+        method: 'GET',
+        url: '/users/1',
+        headers: {},
+      },
+      defaultEtagMode: 'strong',
+    });
+
+    expect(decision.headers.etag).toBeDefined();
+    expect(decision.headers.etag?.startsWith('W/')).toBe(false);
+  });
 });
