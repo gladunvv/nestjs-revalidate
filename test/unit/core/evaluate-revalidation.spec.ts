@@ -230,4 +230,75 @@ describe('evaluateRevalidation', () => {
     expect(decision.headers.etag).toBeDefined();
     expect(decision.headers.etag?.startsWith('W/')).toBe(false);
   });
+
+  it('throws projector errors when onProjectorError is throw', () => {
+    expect(() =>
+      evaluateRevalidation({
+        value: { version: 1 },
+        metadata: {
+          etag: {
+            by: () => {
+              throw new Error('boom');
+            },
+          },
+        },
+        context: {
+          method: 'GET',
+          url: '/users/1',
+          headers: {},
+        },
+        defaultEtagMode: 'weak',
+        onProjectorError: 'throw',
+      }),
+    ).toThrow('boom');
+  });
+
+  it('skips failing etag projector when onProjectorError is skip', () => {
+    const decision = evaluateRevalidation({
+      value: { updatedAt: new Date('2026-04-16T12:00:00.000Z') },
+      metadata: {
+        etag: {
+          by: () => {
+            throw new Error('boom');
+          },
+        },
+        lastModified: (value: { updatedAt: Date }) => value.updatedAt,
+      },
+      context: {
+        method: 'GET',
+        url: '/users/1',
+        headers: {},
+      },
+      defaultEtagMode: 'weak',
+      onProjectorError: 'skip',
+    });
+
+    expect(decision.headers.etag).toBeUndefined();
+    expect(decision.headers.lastModified).toBeDefined();
+    expect(decision.notModified).toBe(false);
+  });
+
+  it('skips failing cacheControl projector when onProjectorError is skip', () => {
+    const decision = evaluateRevalidation({
+      value: { version: 1 },
+      metadata: {
+        etag: {
+          by: (value: { version: number }) => value.version,
+        },
+        cacheControl: () => {
+          throw new Error('boom');
+        },
+      },
+      context: {
+        method: 'GET',
+        url: '/users/1',
+        headers: {},
+      },
+      defaultEtagMode: 'weak',
+      onProjectorError: 'skip',
+    });
+
+    expect(decision.headers.etag).toBeDefined();
+    expect(decision.headers.cacheControl).toBeUndefined();
+  });
 });

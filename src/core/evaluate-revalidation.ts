@@ -11,6 +11,7 @@ export interface EvaluateRevalidationInput<T = unknown> {
   metadata: RevalidateRouteMetadata<T>;
   context: HttpCacheExecutionContext;
   defaultEtagMode?: 'weak' | 'strong';
+  onProjectorError?: 'throw' | 'skip';
 }
 
 export function evaluateRevalidation<T>({
@@ -18,47 +19,55 @@ export function evaluateRevalidation<T>({
   metadata,
   context,
   defaultEtagMode = 'weak',
+  onProjectorError = 'throw',
 }: EvaluateRevalidationInput<T>): RevalidationDecision {
   const headers: RevalidationDecision['headers'] = {};
 
   if (metadata.noStore) {
     headers.cacheControl = 'no-store';
   } else if (metadata.cacheControl) {
-    const cacheControl =
-      typeof metadata.cacheControl === 'function'
-        ? metadata.cacheControl(value, context)
-        : metadata.cacheControl;
+    if (typeof metadata.cacheControl === 'function') {
+      const factory = metadata.cacheControl;
 
-    if (cacheControl !== undefined) {
-      headers.cacheControl = cacheControl;
+      const cacheControl = executeProjector(() => factory(value, context), onProjectorError);
+
+      if (cacheControl !== undefined) {
+        headers.cacheControl = cacheControl;
+      }
+    } else {
+      headers.cacheControl = metadata.cacheControl;
     }
   }
-//TODO: Implement VaryFactory (vary with factory)
-  // if (metadata.vary) {
-  //   const varyValue =
-  //     typeof metadata.vary === 'function' ? metadata.vary(value, context) : metadata.vary;
 
-  //   if (varyValue?.length) {
-  //     headers.vary = varyValue.join(', ');
-  //   }
-  // }
-
-  if (metadata.vary) {
+  if (metadata.vary?.length) {
     headers.vary = metadata.vary.join(', ');
   }
 
   let currentEtag: string | undefined;
+
   if (metadata.etag?.by) {
-    const etagInput = metadata.etag.by(value, context);
-    currentEtag = createEtag(etagInput, metadata.etag.mode ?? defaultEtagMode);
-    if (currentEtag) {
-      headers.etag = currentEtag;
+    const projector = metadata.etag.by;
+    const mode = metadata.etag.mode ?? defaultEtagMode;
+
+    const etagInput = executeProjector(() => projector(value, context), onProjectorError);
+
+    if (etagInput !== undefined) {
+      currentEtag = createEtag(etagInput, mode);
+
+      if (currentEtag !== undefined) {
+        headers.etag = currentEtag;
+      }
     }
   }
 
   let currentLastModifiedDate: Date | undefined;
   if (metadata.lastModified) {
-    currentLastModifiedDate = normalizeLastModified(metadata.lastModified(value, context));
+    const projector = metadata.lastModified;
+
+    currentLastModifiedDate = normalizeLastModified(
+      executeProjector(() => projector(value, context), onProjectorError),
+    );
+
     if (currentLastModifiedDate) {
       headers.lastModified = toHttpDate(currentLastModifiedDate);
     }
@@ -76,6 +85,18 @@ export function evaluateRevalidation<T>({
     notModified,
     headers,
   };
+}
+
+function executeProjector<T>(projector: () => T, mode: 'throw' | 'skip'): T | undefined {
+  try {
+    return projector();
+  } catch (error: unknown) {
+    if (mode === 'throw') {
+      throw error;
+    }
+
+    return undefined;
+  }
 }
 
 function asSingleHeader(value: string | string[] | undefined): string | undefined {

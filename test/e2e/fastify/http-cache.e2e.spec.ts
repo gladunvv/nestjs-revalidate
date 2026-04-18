@@ -40,7 +40,6 @@ class UsersController {
       setHeadersOnNotModified: true,
       etag: {
         mode: 'weak',
-        hashAlgorithm: 'sha1',
       },
     }),
   ],

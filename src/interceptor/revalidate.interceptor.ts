@@ -49,6 +49,7 @@ export class RevalidateInterceptor implements NestInterceptor {
           metadata,
           context: requestContext,
           defaultEtagMode: this.options.etag?.mode ?? 'weak',
+          onProjectorError: this.options.onProjectorError ?? 'throw',
         });
 
         const applyDecisionHeaders = () => {
