@@ -51,27 +51,34 @@ export class RevalidateInterceptor implements NestInterceptor {
           defaultEtagMode: this.options.etag?.mode ?? 'weak',
         });
 
-        if (decision.headers.cacheControl) {
-          adapter.setHeader(context, 'Cache-Control', decision.headers.cacheControl);
-        }
+        const applyDecisionHeaders = () => {
+          if (decision.headers.cacheControl) {
+            adapter.setHeader(context, 'Cache-Control', decision.headers.cacheControl);
+          }
 
-        if (decision.headers.vary) {
-          adapter.setHeader(context, 'Vary', decision.headers.vary);
-        }
+          if (decision.headers.vary) {
+            adapter.setHeader(context, 'Vary', decision.headers.vary);
+          }
 
-        if (decision.headers.etag) {
-          adapter.setHeader(context, 'ETag', decision.headers.etag);
-        }
+          if (decision.headers.etag) {
+            adapter.setHeader(context, 'ETag', decision.headers.etag);
+          }
 
-        if (decision.headers.lastModified) {
-          adapter.setHeader(context, 'Last-Modified', decision.headers.lastModified);
-        }
+          if (decision.headers.lastModified) {
+            adapter.setHeader(context, 'Last-Modified', decision.headers.lastModified);
+          }
+        };
 
         if (decision.notModified) {
+          if (this.options.setHeadersOnNotModified !== false) {
+            applyDecisionHeaders();
+          }
+
           adapter.setStatusNotModified(context);
           return of(null);
         }
 
+        applyDecisionHeaders();
         return of(value);
       }),
     );
