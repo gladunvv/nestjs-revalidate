@@ -26,12 +26,6 @@ export type CacheControlFactory<T = unknown> = (
   ctx: HttpCacheExecutionContext,
 ) => string | undefined;
 
-// TODO: Implement VaryFactory
-// export type VaryFactory<T = unknown> = (
-//   value: T,
-//   ctx: HttpCacheExecutionContext,
-// ) => string[] | undefined;
-
 export interface HttpCacheOptions<T = unknown> {
   etag?:
     | EtagProjector<T>
