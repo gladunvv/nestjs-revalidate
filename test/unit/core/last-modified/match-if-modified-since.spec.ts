@@ -28,6 +28,12 @@ describe('matchesIfModifiedSince', () => {
     expect(matchesIfModifiedSince(lastModified, earlier.toUTCString())).toBe(false);
   });
 
+  it('uses second precision instead of milliseconds', () => {
+    expect(
+      matchesIfModifiedSince(new Date('2026-04-16T12:00:00.900Z'), 'Wed, 16 Apr 2026 12:00:00 GMT'),
+    ).toBe(true);
+  });
+
   it('returns false when header is not a valid date', () => {
     expect(matchesIfModifiedSince(lastModified, 'not a date')).toBe(false);
   });
