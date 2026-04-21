@@ -10,6 +10,12 @@ export function matchesIfModifiedSince(
   if (Number.isNaN(since.getTime())) {
     return false;
   }
+  const currentSeconds = toUnixSeconds(currentLastModified);
+  const sinceSeconds = toUnixSeconds(since);
 
-  return currentLastModified.getTime() <= since.getTime();
+  return currentSeconds <= sinceSeconds;
+}
+
+function toUnixSeconds(date: Date): number {
+  return Math.floor(date.getTime() / 1000);
 }
