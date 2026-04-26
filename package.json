@@ -1,6 +1,6 @@
 {
   "name": "nestjs-revalidate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Declarative HTTP revalidation for NestJS with ETag, Last-Modified, Cache-Control, Vary and 304 responses.",
   "license": "MIT",
   "author": "Gladun Vladislav <gladun.vladislav@gmail.com>",
