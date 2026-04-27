@@ -47,4 +47,48 @@ describe('HttpCache', () => {
       Reflect.getMetadata(REVALIDATE_NO_STORE_METADATA, TestController.prototype.handler),
     ).toBe(true);
   });
+
+  it('stores etag metadata when etag is provided as a projector function', () => {
+    const projector = (value: { version: number }) => value.version;
+
+    class TestController {
+      @HttpCache({
+        etag: projector,
+      })
+      handler() {}
+    }
+
+    const metadata = Reflect.getMetadata(
+      REVALIDATE_ETAG_METADATA,
+      TestController.prototype.handler,
+    );
+
+    expect(metadata).toEqual({
+      by: projector,
+    });
+  });
+
+  it('stores etag metadata when etag is provided as an object', () => {
+    const projector = (value: { version: number }) => value.version;
+
+    class TestController {
+      @HttpCache({
+        etag: {
+          by: projector,
+          mode: 'strong',
+        },
+      })
+      handler() {}
+    }
+
+    const metadata = Reflect.getMetadata(
+      REVALIDATE_ETAG_METADATA,
+      TestController.prototype.handler,
+    );
+
+    expect(metadata).toEqual({
+      by: projector,
+      mode: 'strong',
+    });
+  });
 });
