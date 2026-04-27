@@ -301,4 +301,38 @@ describe('evaluateRevalidation', () => {
     expect(decision.headers.etag).toBeDefined();
     expect(decision.headers.cacheControl).toBeUndefined();
   });
+
+  it('does not set Cache-Control when cacheControl factory returns undefined', () => {
+    const decision = evaluateRevalidation({
+      value: { version: 1 },
+      metadata: {
+        cacheControl: () => undefined,
+      },
+      context: {
+        method: 'GET',
+        url: '/users/1',
+        headers: {},
+      },
+      defaultEtagMode: 'weak',
+    });
+
+    expect(decision.headers.cacheControl).toBeUndefined();
+  });
+
+  it('sets Cache-Control when cacheControl factory returns a value', () => {
+    const decision = evaluateRevalidation({
+      value: { version: 1 },
+      metadata: {
+        cacheControl: () => 'private, max-age=60',
+      },
+      context: {
+        method: 'GET',
+        url: '/users/1',
+        headers: {},
+      },
+      defaultEtagMode: 'weak',
+    });
+
+    expect(decision.headers.cacheControl).toBe('private, max-age=60');
+  });
 });
