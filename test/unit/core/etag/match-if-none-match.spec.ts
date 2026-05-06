@@ -10,6 +10,10 @@ describe('matchesIfNoneMatch', () => {
     expect(matchesIfNoneMatch('"abc"', undefined)).toBe(false);
   });
 
+  it('returns false when header and current etag are missing', () => {
+    expect(matchesIfNoneMatch(undefined, undefined)).toBe(false);
+  });
+
   it('matches exact strong etag', () => {
     expect(matchesIfNoneMatch('"abc"', '"abc"')).toBe(true);
   });
