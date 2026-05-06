@@ -137,6 +137,21 @@ describe('evaluateRevalidation', () => {
     expect(decision.headers.lastModified).toBe(updatedAt.toUTCString());
   });
 
+  it('uses first value when header is array', () => {
+    const metadata: RevalidateRouteMetadata = {
+      vary: ['X-First', 'X-Second'],
+    };
+
+    const decision = evaluateRevalidation({
+      value: {},
+      metadata,
+      context: baseContext,
+      defaultEtagMode: 'weak',
+    });
+
+    expect(decision.headers.vary).toBe('X-First');
+  });
+
   it('returns 304 by Last-Modified when ETag is absent and If-Modified-Since matches', () => {
     const updatedAt = new Date('2026-04-15T10:00:00.000Z');
 
