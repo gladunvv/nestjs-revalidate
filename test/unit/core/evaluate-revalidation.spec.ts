@@ -137,19 +137,39 @@ describe('evaluateRevalidation', () => {
     expect(decision.headers.lastModified).toBe(updatedAt.toUTCString());
   });
 
-  it('uses first value when header is array', () => {
-    const metadata: RevalidateRouteMetadata = {
-      vary: ['X-First', 'X-Second'],
+  it('uses first If-None-Match value when header is array', () => {
+    const metadata: RevalidateRouteMetadata<{ version: number }> = {
+      etag: {
+        by: (value) => value.version,
+      },
     };
 
-    const decision = evaluateRevalidation({
-      value: {},
+    const first = evaluateRevalidation({
+      value: { version: 7 },
       metadata,
       context: baseContext,
       defaultEtagMode: 'weak',
     });
 
-    expect(decision.headers.vary).toBe('X-First');
+    const etag = first.headers.etag;
+    if (!etag) {
+      throw new Error('Expected ETag header to be present');
+    }
+
+    const second = evaluateRevalidation({
+      value: { version: 7 },
+      metadata,
+      context: {
+        ...baseContext,
+        headers: {
+          'if-none-match': [etag, '"some-other-etag"'],
+        },
+      },
+      defaultEtagMode: 'weak',
+    });
+
+    expect(second.notModified).toBe(true);
+    expect(second.headers.etag).toBe(etag);
   });
 
   it('returns 304 by Last-Modified when ETag is absent and If-Modified-Since matches', () => {
