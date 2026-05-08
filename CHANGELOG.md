@@ -18,11 +18,6 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Improved `If-Modified-Since` comparison to use second precision.
 
-### Fixed
-- Fixed response lifecycle issues around `304 Not Modified`.
-- Fixed metadata merge behavior for separate decorator keys.
-- Fixed conditional revalidation handling for Express and Fastify parity.
-
 ## [0.1.0] - 2026-04-19
 
 ### Added
