@@ -1,7 +1,7 @@
 import { HttpAdapterHost } from '@nestjs/core';
 import { FastifyPlatformAdapter } from './fastify-platform-adapter';
 import { ExpressPlatformAdapter } from './express-platform-adapter';
-import { HttpPlatformAdapter } from './http-platform-adapter';
+import { HttpPlatformAdapter } from './http-platform-adapter.interface';
 
 export function createHttpPlatformAdapter(host: HttpAdapterHost): HttpPlatformAdapter {
   const type = host.httpAdapter.getType();

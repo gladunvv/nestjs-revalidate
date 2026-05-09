@@ -1,5 +1,5 @@
 import { ExecutionContext } from '@nestjs/common';
-import { HttpPlatformAdapter } from './http-platform-adapter';
+import { HttpPlatformAdapter } from './http-platform-adapter.interface';
 
 export class ExpressPlatformAdapter implements HttpPlatformAdapter {
   getRequestMethod(context: ExecutionContext): string {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { evaluateRevalidation } from '../../../src/core/evaluate-revalidation';
-import { RevalidateRouteMetadata } from '../../../src/metadata/metadata.types';
+import { evaluateRevalidation } from '../../../../src/core/evaluate-revalidation';
+import { RevalidateRouteMetadata } from '../../../../src/metadata/metadata.types';
 
 describe('evaluateRevalidation', () => {
   const baseContext = {

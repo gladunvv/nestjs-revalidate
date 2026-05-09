@@ -13,7 +13,7 @@ export default defineConfig({
         'src/index.ts',
         'src/**/*.types.ts',
         'src/**/*.interfaces.ts',
-        'src/platform/http-platform-adapter.ts',
+        'src/platform/http-platform-adapter.interface.ts',
       ],
     },
   },
