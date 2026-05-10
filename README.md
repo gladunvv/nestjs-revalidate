@@ -2,7 +2,7 @@
 
 Declarative HTTP revalidation for NestJS.
 
-`nestjs-revalidate` helps NestJS endpoints use proper HTTP revalidation semantics with decorators instead of manual header handling in controllers.
+`nestjs-revalidate` adds proper HTTP conditional request handling to NestJS applications using decorators instead of manual header orchestration inside controllers.
 
 It supports:
 
@@ -14,39 +14,41 @@ It supports:
 - `Cache-Control`
 - `Vary`
 
-Works with both **Express** and **Fastify**.
+Works with both Express and Fastify.
 
-> Pre-release: the package is still being finalized and may change before the first public npm release.
+---
 
-## What this package is for
+## Why?
 
-A common pattern in NestJS apps looks like this:
+A common NestJS controller often ends up doing this manually:
 
 - fetch resource
-- compute `ETag`
+- compute ETag
 - set headers
 - read `If-None-Match`
 - compare validators
-- return `304` when nothing changed
+- return `304 Not Modified`
 
-Without a reusable abstraction, this logic usually ends up duplicated across controllers.
+That logic usually becomes duplicated and inconsistent across endpoints.
 
-`nestjs-revalidate` moves that logic into decorators and a single interceptor-driven runtime path.
+`nestjs-revalidate` centralizes HTTP revalidation into decorators and a single interceptor-driven runtime path.
+
+---
 
 ## What this package is not
 
-This package is **not**:
+This package is not:
 
 - a Redis cache
 - a memory response cache
+- a cache-manager replacement
 - an invalidation system
-- a `cache-manager` replacement
 
-It focuses on **HTTP revalidation**, not cache storage.
+It focuses on HTTP revalidation semantics, not cache storage.
+
+---
 
 ## Installation
-
-After publishing:
 
 ```bash
 npm install nestjs-revalidate
@@ -58,6 +60,8 @@ Peer dependencies:
 - `@nestjs/core`
 - `reflect-metadata`
 - `rxjs`
+
+---
 
 ## Quick start
 
@@ -114,9 +118,11 @@ export class UsersController {
 }
 ```
 
+---
+
 ## Low-level decorators
 
-You can also compose the behavior explicitly:
+You can also compose behavior explicitly:
 
 ```ts
 import { Controller, Get, Param } from '@nestjs/common';
@@ -152,6 +158,8 @@ export class UsersController {
 }
 ```
 
+---
+
 ## Public API
 
 ### `@HttpCache(options)`
@@ -167,6 +175,8 @@ High-level decorator that combines multiple revalidation settings.
 })
 ```
 
+---
+
 ### `@EtagBy(projector, mode?)`
 
 Defines how to compute the resource validator used for `ETag`.
@@ -174,6 +184,8 @@ Defines how to compute the resource validator used for `ETag`.
 ```ts
 @EtagBy((value) => value.version)
 ```
+
+---
 
 ### `@LastModifiedBy(projector)`
 
@@ -183,6 +195,8 @@ Defines how to compute `Last-Modified`.
 @LastModifiedBy((value) => value.updatedAt)
 ```
 
+---
+
 ### `@CacheControl(value)`
 
 Sets `Cache-Control` for the endpoint.
@@ -190,6 +204,8 @@ Sets `Cache-Control` for the endpoint.
 ```ts
 @CacheControl('private, max-age=0, must-revalidate')
 ```
+
+---
 
 ### `@Vary(...headers)`
 
@@ -199,6 +215,8 @@ Sets the `Vary` header.
 @Vary('Accept-Encoding', 'Accept-Language')
 ```
 
+---
+
 ### `@NoStore()`
 
 Forces `Cache-Control: no-store`.
@@ -206,6 +224,8 @@ Forces `Cache-Control: no-store`.
 ```ts
 @NoStore()
 ```
+
+---
 
 ## Module options
 
@@ -221,14 +241,14 @@ export interface RevalidateModuleOptions {
 }
 ```
 
+---
+
 ### `onProjectorError`
 
 Controls what happens when a projector throws.
 
-- `'throw'`: propagate the error
-- `'skip'`: ignore the failing projector and continue with the rest
-
-Example:
+- `'throw'` — propagate the error
+- `'skip'` — ignore the failing projector and continue
 
 ```ts
 RevalidateModule.forRoot({
@@ -236,14 +256,14 @@ RevalidateModule.forRoot({
 })
 ```
 
+---
+
 ### `setHeadersOnNotModified`
 
 Controls whether computed headers are included on `304 Not Modified` responses.
 
-- `true`: include computed headers on `304`
-- `false`: omit them on `304`
-
-Example:
+- `true` — include computed headers on `304`
+- `false` — omit them on `304`
 
 ```ts
 RevalidateModule.forRoot({
@@ -251,14 +271,14 @@ RevalidateModule.forRoot({
 })
 ```
 
+---
+
 ### `etag.mode`
 
-Configures the default `ETag` mode.
+Configures the default ETag mode.
 
 - `'weak'`
 - `'strong'`
-
-Example:
 
 ```ts
 RevalidateModule.forRoot({
@@ -268,23 +288,29 @@ RevalidateModule.forRoot({
 })
 ```
 
+---
+
 ## Runtime behavior
 
 For `GET` and `HEAD` requests, the interceptor:
 
-1. executes the route handler
-2. computes validators from the returned value
-3. reads conditional request headers
-4. decides whether the resource changed
-5. sets response headers
-6. returns `304 Not Modified` when appropriate
+- executes the route handler
+- computes validators from the returned value
+- reads conditional request headers
+- decides whether the resource changed
+- sets response headers
+- returns `304 Not Modified` when appropriate
 
 For non-`GET`/`HEAD` requests, revalidation logic is skipped.
+
+---
 
 ## Supported platforms
 
 - NestJS + Express
 - NestJS + Fastify
+
+---
 
 ## Current scope
 
@@ -292,11 +318,13 @@ The package intentionally stays small.
 
 Current focus:
 
-- predictable `ETag` behavior
-- predictable `Last-Modified` behavior
+- predictable ETag behavior
+- predictable Last-Modified behavior
 - correct `304` handling
-- Express/Fastify support
+- Express/Fastify parity
 - small and explicit API surface
+
+---
 
 ## Limitations
 
@@ -306,16 +334,21 @@ Current limitations and expectations:
 - not intended as a storage-backed cache
 - does not automatically invalidate data after writes
 - does not eliminate database work by itself
-- not intended for streaming or file-specific behavior in its current form
+- not intended for streaming or file-specific behavior
+
+---
 
 ## Testing
 
-The project currently includes:
+The project includes:
 
 - unit tests for core revalidation logic
-- metadata and decorator tests
-- e2e tests for Express
-- e2e tests for Fastify
+- decorator and metadata tests
+- Express e2e coverage
+- Fastify e2e coverage
+- 100% statement, branch, function, and line coverage
+
+---
 
 ## License
 
